@@ -4,7 +4,7 @@
 typedef struct Process
 {
     int pid;
-    float at, st, bt, wt, tat;
+    float at, st, bt, wt, tat,ft,rt;
 } Process;
 
 Process *getProcesses(const int size)
@@ -59,6 +59,9 @@ void putTable(Process * const p,const int size)
     printf("| PID | Arrival Time | Burst Time | Wait Time | Turn Around Time |\n");
     printf("+-----+--------------+------------+-----------+------------------+\n");
     p[0].wt = 0;
+    p[0].st = 0;
+    p[0].et = p[0].bt;
+    p[0].rt = p[0].st - p[0].bt;
     p[0].tat = p[0].bt + p[0].wt;
     tot_tat = p[0].tat;
     
