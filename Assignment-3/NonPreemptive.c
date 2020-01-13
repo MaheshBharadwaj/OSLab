@@ -4,7 +4,7 @@
 typedef struct Process
 {
     int pid;
-    float at, st, bt, wt, tat,ft,rt;
+    float at, st,et,bt, wt, tat,ft,rt;
 } Process;
 
 Process *getProcesses(const int size)
