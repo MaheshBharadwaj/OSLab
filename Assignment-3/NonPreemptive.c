@@ -88,7 +88,7 @@ void putTable(Process *const p, const int size)
     for (int i = 1; i < size; i++)
     {
         p[i].wt = p[i - 1].wt + p[i - 1].bt;
-        p[i].st = tot_wt;
+        p[i].st = p[i-1].et;
         p[i].et = p[i].st + p[i].bt;
         p[i].rt = p[i].st - p[i].at;
         tot_wt += p[i].wt;
@@ -96,7 +96,7 @@ void putTable(Process *const p, const int size)
         tot_tat += p[i].tat;
 
         printf("| %3d | %-12.1f | %-10.1f | %-5.1f | %-4.1f | %-9.1f | %-4.1f | %-4.1f |\n",
-               p[index].pid, p[index].at, p[index].bt, p[index].st, p[index].et, p[index].wt, p[index].tat, p[index].rt);
+               p[i].pid, p[i].at, p[i].bt, p[i].st, p[i].et, p[i].wt, p[i].tat, p[i].rt);
     }
     printf("+-----+--------------+------------+-------+------+-----------+------+------+\n");
     printf("|                                 | Total        | %-9.1f | %-4.1f |      |\n", tot_wt, tot_tat);
@@ -106,11 +106,10 @@ void putTable(Process *const p, const int size)
 
 void SRTF(Process *const p, const int size)
 {
-    int size;
     int completed = 0;
     int last_process = 1;
     int index = 0;
-
+    int prev_id = -1;
     float tot_tat = 0;
     float tot_wt = 0;
 
@@ -124,8 +123,8 @@ void SRTF(Process *const p, const int size)
     printf("+-----+--------------+------------+-------+------+-----------+------+------+\n");
     printf("| PID | Arrival Time | Burst Time | Start | End  | Wait Time | TAT  | RT   |\n");
     printf("+-----+--------------+------------+-------+------+-----------+------+------+\n");
-    printf("| %3d | %-12.1f | %-10.1f | %-5.1f | %-4.1f | %-9.1f | %-4.1f | %-4.1f |\n",
-           p[index].pid, p[index].at, p[index].bt, p[index].st, p[index].et, p[index].wt, p[index].tat, p[index].rt);
+   // printf("| %3d | %-12.1f | %-10.1f | %-5.1f | %-4.1f | %-9.1f | %-4.1f | %-4.1f |\n",
+     //      p[index].pid, p[index].at, p[index].bt, p[index].st, p[index].et, p[index].wt, p[index].tat, p[index].rt);
 
     while (completed < size)
     {
@@ -174,7 +173,7 @@ void SRTF(Process *const p, const int size)
 int main(void)
 {
     int size;
-    int choice;
+    int choice = 5;
     do
     {
         system("clear");
@@ -200,7 +199,7 @@ int main(void)
         break;
         case 2:
         {
-            print("\n1 - Non Preemptive SJF");
+            printf("\n1 - Non Preemptive SJF\n");
             printf("2 - Preemptive SJF[SRTF]\n");
             printf("3 - back\n");
             printf("Enter your choice: ");
@@ -237,10 +236,11 @@ int main(void)
                 printf("\nInvalid Input!\n");
             }
         }
+        break;
         case 3:
             return 0;
         default:
             printf("Invalid Input\n");
         }
-    }
+    } while (choice != 3);
 }
