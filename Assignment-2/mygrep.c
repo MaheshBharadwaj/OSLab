@@ -24,7 +24,7 @@ int main(int argc, char **argv)
 
 		if (source_d == -1)
 		{
-			fprintf(stderr, "No such file");
+			fprintf(stderr, "No such file\n");
 			return 1;
 		}
 
