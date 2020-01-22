@@ -108,7 +108,7 @@ int main(int argc, char **argv)
 		}
 		else
 		{
-			fprintf(stderr, "Invalid Arguments [ -n , -i ,-f ,-v supported]!\n");
+			fprintf(stderr, "Invalid Arguments [ -r , -n , -i ,-f ,-v supported]!\n");
 			return 1;
 		}
 		creat(argv[3], S_IRWXU);
