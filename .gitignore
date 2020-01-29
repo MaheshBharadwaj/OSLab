@@ -1,4 +1,7 @@
 #Ignore Executable Files
 exec-*
 *.tex
-
+*.out
+*.log
+*.aux
+Report.pdf
