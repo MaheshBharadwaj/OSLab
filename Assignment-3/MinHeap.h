@@ -30,12 +30,18 @@ PQueue createPQueue(const int maxsize){
 
 void enqueue(PQueue q,const Data d){
 	if(isFull(q)){
-		printf("Queue Full!\n");
+		//printf("Queue Full!\n");
 		return;
 	}	
 	int i = ++q -> size;
-	for(; q -> arr[i/2].rem_t > d.rem_t ; i /= 2)
-		q -> arr[i] = q -> arr[i/2];
+	for(; q -> arr[i/2].rem_t >= d.rem_t; i /= 2){
+		if(q -> arr[i/2].rem_t == d.rem_t){
+			if(d.pid < q -> arr[i/2].pid) 
+				q -> arr[i] = q -> arr[i/2];
+		}
+		else
+			q -> arr[i/2].rem_t >= d.rem_t;
+	}
 	
 	q -> arr[i] = d; 
 
@@ -43,7 +49,7 @@ void enqueue(PQueue q,const Data d){
 
 Data dequeue(PQueue q){
 	if(isEmpty(q)){
-		printf("Queue Empty!\n");
+		//printf("Queue Empty!\n");
 		return q -> arr[0]; 
 	}
 	int i,child;
@@ -57,7 +63,7 @@ Data dequeue(PQueue q){
 
 		if(child != q -> size && q -> arr[child + 1].rem_t < q -> arr[child].rem_t)
 			child ++;
-		if(last.rem_t > q -> arr[child].rem_t)
+		if(last.rem_t >= q -> arr[child].rem_t)
 			q -> arr[i] = q -> arr[child];
 		else
 			break;
