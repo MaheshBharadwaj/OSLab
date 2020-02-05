@@ -34,13 +34,8 @@ void enqueue(PQueue q,const Data d){
 		return;
 	}	
 	int i = ++q -> size;
-	for(; q -> arr[i/2].rem_t >= d.rem_t; i /= 2){
-		if(q -> arr[i/2].rem_t == d.rem_t){
-			if(d.pid < q -> arr[i/2].pid) 
-				q -> arr[i] = q -> arr[i/2];
-		}
-		else
-			q -> arr[i/2].rem_t >= d.rem_t;
+	for(; q -> arr[i/2].rem_t > d.rem_t; i /= 2){
+			q -> arr[i] = q -> arr[i/2];
 	}
 	
 	q -> arr[i] = d; 

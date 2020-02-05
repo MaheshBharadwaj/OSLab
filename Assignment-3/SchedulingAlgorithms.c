@@ -4,7 +4,7 @@
 typedef struct Process
 {
     int pid;
-    float at, bt, st, et, wt, tat, rt, rem_t;
+    float at, bt, st, et, wt, tat, rt, rem_t,pri;
 } Process;
 
 #include "MinHeap.h"
@@ -73,6 +73,15 @@ void SJF(Process * const p,const int size){
     PQueue processQueue = createPQueue(size);
     int time = 0;
 
+    int total_time = 0;
+    for (int i = 0; i < size; i++)
+        total_time += p[i].bt;
+
+
+    printf("\nGANTT CHART[EACH CELL IS 1 Second]\n");
+    for (int i = 0; i < total_time; i++)
+        printf("+---");
+    printf("+\n");
 
 	while(completed != size){
 		for(int i = last_process;i < size ; ++i)
@@ -81,17 +90,15 @@ void SJF(Process * const p,const int size){
                 last_process = i+1;
 			}
         
-        printf("Contents of Queue after enqueue: \n");
-        display(processQueue);
-	 	
-
 		tmp = dequeue(processQueue);
         index = getIndex(p, size, tmp);
 
 		if(tmp.rem_t == -1){
+            printf("| - ");
             time++;
             continue;
         }
+
         p[index].st = time;
         p[index].rt = p[index].st - p[index].at;
 		p[index].et = time + p[index].bt;
@@ -102,9 +109,13 @@ void SJF(Process * const p,const int size){
         completed++;
 		time += p[index].bt;
 			
-		//printf("| %1d ", p[index].pid);
+		for(int t = 0 ; t < p[index].bt; t++)
+            printf("| %1d ", p[index].pid);
 	}
-    //printf("|\n");
+    printf("|\n");
+    for (int i = 0; i < total_time; i++)
+        printf("+---");
+    printf("+\n\n");
     printf("+-----+--------------+------------+-------+------+-----------+------+------+\n");
     printf("| PID | Arrival Time | Burst Time | Start | End  | Wait Time | TAT  | RT   |\n");
     printf("+-----+--------------+------------+-------+------+-----------+------+------+\n");
@@ -304,8 +315,6 @@ int main(void)
                 Process *p = getProcesses(size);
 
                 SJF(p, size);
-                //putTable(p, size);
-                putChart(p, size);
                 printf("Press ENTER to continue...");
                 getchar();
             }
