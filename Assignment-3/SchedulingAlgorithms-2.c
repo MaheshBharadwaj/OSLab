@@ -120,7 +120,7 @@ void priority_np(Process arr[], const int size)
     Process g[10];
     int count = 0;
     float tot_tat = 0, tot_wt = 0;
-    
+
     time = 0;
     for (int i = 0; i < size; i++)
         time += arr[i].bt;
@@ -141,7 +141,7 @@ void priority_np(Process arr[], const int size)
                 index = i;
             }
         }
-        for(int i = 0 ; i < arr[index].rem_t;i++)
+        for (int i = 0; i < arr[index].rem_t; i++)
             printf("| %1d ", arr[index].pid);
         arr[index].rem_t = 0;
         arr[index].wt = t - arr[index].at;
@@ -168,62 +168,87 @@ void priority_np(Process arr[], const int size)
     printf("|                                 | Total        | %-9.1f | %-4.1f |      |\n", tot_wt, tot_tat);
     printf("|                                 | Average      | %-9.1f | %-4.1f |      |\n", tot_wt / size, tot_tat / size);
     printf("+-----+--------------+------------+-------+------+-----------+------+------+\n\n");
-
 }
-/*
-void priority_p(job ar[], int n)
+
+void priority_p(Process *const arr, const int size)
 {
     int time = 0;
-    float avgturn = 0, avgwait = 0;
+    float tot_tat = 0, tot_wt = 0;
     int min;
     int index;
     int prev = -1;
-    printf("\n\n\t\tPRIORITY (Pre Emptive)\n");
     time = 0;
-    int remain = 0, endtime;
-    job g[10];
-    int count = 0;
+    int completed = 0;
+   // Process g[10];
+    //int count = 0;
 
-    for (int i = 0; i < n; i++)
-    {
-        time += ar[i].burst;
-    }
+    for (int i = 0; i < size; i++)
+        time += arr[i].bt;
 
-    for (int t = 0; remain != n; t++)
+    printf("\nGANTT CHART[EACH CELL IS 1 Second]\n");
+    for (int i = 0; i < time; i++)
+        printf("+---");
+    printf("+\n");
+
+    for (int t = 0; completed != size; t++)
     {
         min = 9999;
-        for (int i = 0; i < n; i++)
+        for (int i = 0; i < size; i++)
         {
-            if (ar[i].arr <= t && ar[i].pri < min && ar[i].rem > 0)
+            if (arr[i].at <= t && arr[i].pri < min && arr[i].rem_t > 0)
             {
-                min = ar[i].pri;
+                min = arr[i].pri;
                 index = i;
             }
         }
+        if (arr[index].rem_t == arr[index].bt)
+        {
+            arr[index].st = t;
+            arr[index].rt = arr[index].st - arr[index].at;
+        }
+        /*
         if (count != 0 && g[count - 1].pid != ar[index].pid)
         {
-            ar[index].start = t;
-            g[count++] = ar[index];
+            arr[index].st = t;
+            g[count++] = arr[index];
         }
         else if (count == 0 && t == 0)
         {
-            ar[index].start = t;
-            g[count++] = ar[index];
+            arr[index].st = t;
+            g[count++] = arr[index];
         }
-        ar[index].rem -= 1;
+        */
+        arr[index].rem_t--;
 
-        if (ar[index].rem == 0)
+        if (arr[index].rem_t == 0)
         {
-            remain++;
-            endtime = t + 1;
-            ar[index].turn = endtime - ar[index].arr;
-            ar[index].wait = endtime - ar[index].burst - ar[index].arr;
+            completed++;
+            arr[index].et = t + 1;
+            arr[index].tat = arr[index].et - arr[index].at;
+            arr[index].wt = arr[index].tat - arr[index].bt;
+            tot_tat += arr[index].tat;
+            tot_wt += arr[index].wt;
         }
+        printf("| %1d ", arr[index].pid);
     }
-    display(ar, n);
-    gantt(g, count, time);
+    printf("|\n");
+    for (int i = 0; i < time; i++)
+        printf("+---");
+    printf("+\n\n");
+
+    printf("+-----+--------------+------------+-------+------+-----------+------+------+\n");
+    printf("| PID | Arrival Time | Burst Time | Start | End  | Wait Time | TAT  | RT   |\n");
+    printf("+-----+--------------+------------+-------+------+-----------+------+------+\n");
+    for (int i = 0; i < size; i++)
+        printf("| %3d | %-12.1f | %-10.1f | %-5.1f | %-4.1f | %-9.1f | %-4.1f | %-4.1f |\n",
+               arr[i].pid, arr[i].at, arr[i].bt, arr[i].st, arr[i].et, arr[i].wt, arr[i].tat, arr[i].rt);
+    printf("+-----+--------------+------------+-------+------+-----------+------+------+\n");
+    printf("|                                 | Total        | %-9.1f | %-4.1f |      |\n", tot_wt, tot_tat);
+    printf("|                                 | Average      | %-9.1f | %-4.1f |      |\n", tot_wt / size, tot_tat / size);
+    printf("+-----+--------------+------------+-------+------+-----------+------+------+\n\n");
+
 }
-*/
+
 int main(void)
 {
     int size;
@@ -252,7 +277,7 @@ int main(void)
         break;
         case 2:
         {
-            
+
             printf("\n1 - Non Preemptive Priority\n");
             printf("2 - Preemptive Priority\n");
             printf("3 - back\n");
@@ -274,7 +299,7 @@ int main(void)
             break;
             case 2:
             {
-                /*
+                
                 printf("Enter the number of processes: ");
                 scanf("%d", &size);
 
@@ -283,7 +308,6 @@ int main(void)
                 priority_p(p, size);
                 printf("Press ENTER to continue...");
                 getchar();
-                */
             }
             case 3:
                 choice = 2;
@@ -291,7 +315,6 @@ int main(void)
             default:
                 printf("\nInvalid Input!\n");
             }
-            
         }
         break;
         case 3:
