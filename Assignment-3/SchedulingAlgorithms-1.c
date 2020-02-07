@@ -285,7 +285,6 @@ void SRTF(Process *const p, const int size)
         }
         else
             enqueue(processQueue, p[index]);
-        printf("| P%1d ", p[index].pid);
         time++;
     }
     gantt_chart(gantt, count, total_time);
