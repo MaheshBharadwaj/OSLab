@@ -138,7 +138,7 @@ void FCFS(Process *const arr, const int size)
         arr[i].et = arr[i].st + arr[i].bt;
         arr[i].wt = arr[i].st - arr[i].at;
         arr[i].rt = arr[i].wt;
-        arr[i].tat = arr[i].et - arr[i].st;
+        arr[i].tat = arr[i].et - arr[i].at;
         gantt[count++] = arr[i];
         time+=arr[i].bt;
         total_time+=arr[i].bt;
