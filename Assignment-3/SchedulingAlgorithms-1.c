@@ -4,7 +4,7 @@
 typedef struct Process
 {
     int pid;
-    float at, bt, st, et, wt, tat, rt, rem_t,pri;
+    float at, bt, st, et, wt, tat, rt, rem_t, pri;
 } Process;
 
 #include "MinHeap.h"
@@ -16,16 +16,6 @@ int getIndex(Process *const arr, const int size, const Process p)
             return i;
 
     return -1;
-}
-void line(int n)
-{
-    for (int l = 0; l < n; l++)
-    {
-        printf("+");
-        for (int i = 1; i < 11; i++)
-            printf("-");
-    }
-    printf("+\n");
 }
 
 Process *getProcesses(const int size)
@@ -47,6 +37,84 @@ Process *getProcesses(const int size)
     return p;
 }
 
+void gantt_chart(Process arr[], int n, int tot_time)
+{
+    if (n <= 0)
+        return;
+
+    printf("\n\nGANTT CHART");
+
+    int i, j;
+
+    // printing the top bar
+    printf("\n\n+");
+    for (i = 0; i < n - 1; i++)
+    {
+        for (j = arr[i].st; j < arr[i + 1].st; j++)
+            printf("--");
+        printf("+");
+    }
+
+    for (j = 0; j < tot_time - arr[n - 1].st; j++)
+        printf("--");
+    printf("+");
+
+    printf("\n|");
+
+    // printing the process id in the middle
+    for (i = 0; i < n - 1; i++)
+    {
+        for (j = arr[i].st; j < arr[i + 1].st - 1; j++)
+            printf(" ");
+        printf("P%d", arr[i].pid);
+
+        for (j = arr[i].st; j < arr[i + 1].st - 1; j++)
+            printf(" ");
+        printf("|");
+    }
+
+    for (j = 0; j < tot_time - arr[n - 1].st - 1; j++)
+        printf(" ");
+    printf("P%d", arr[n - 1].pid);
+    for (j = 0; j < tot_time - arr[n - 1].st - 1; j++)
+        printf(" ");
+    printf("|");
+
+    printf("\n+");
+
+    // printing the bottom bar
+    for (i = 0; i < n - 1; i++)
+    {
+        for (j = arr[i].st; j < arr[i + 1].st; j++)
+            printf("--");
+        printf("+");
+    }
+
+    for (j = 0; j < tot_time - arr[n - 1].st; j++)
+        printf("--");
+    printf("+");
+
+    printf("\n");
+
+    // printing the time line
+    for (i = 0; i < n - 1; i++)
+    {
+        printf("%d", (int)arr[i].st);
+        for (j = arr[i].st; j < arr[i + 1].st; j++)
+            printf("  ");
+        if (arr[i].st > 9)
+            printf("\b"); // backspace : remove 1 space
+    }
+
+    printf("%d", (int)arr[n - 1].st);
+    for (j = 0; j < tot_time - arr[n - 1].st; j++)
+        printf("  ");
+
+    if (tot_time > 9)
+        printf("\b%d", tot_time); // backspace : remove space for two digit time instances
+    printf("\n\n");
+}
+
 void FCFS(Process *const arr, const int size)
 {
     for (int i = 0; i < size; i++)
@@ -59,16 +127,49 @@ void FCFS(Process *const arr, const int size)
                 arr[i] = tmp;
             }
         }
+    Process gantt[20];
+    int count = 0;
+    int time = 0;
+    int total_time = 0;
+    float tot_wt = 0, tot_tat = 0;
+    for (int i = 0; i < size; i++)
+    {
+        arr[i].st = time;
+        arr[i].et = arr[i].st + arr[i].bt;
+        arr[i].wt = arr[i].st - arr[i].at;
+        arr[i].rt = arr[i].wt;
+        arr[i].tat = arr[i].et - arr[i].st;
+        gantt[count++] = arr[i];
+        time+=arr[i].bt;
+        total_time+=arr[i].bt;
+        tot_wt += arr[i].wt;
+        tot_tat += arr[i].tat;
+    }
+
+    gantt_chart(arr,size,total_time);
+    printf("+-----+--------------+------------+-------+------+-----------+------+------+\n");
+    printf("| PID | Arrival Time | Burst Time | Start | End  | Wait Time | TAT  | RT   |\n");
+    printf("+-----+--------------+------------+-------+------+-----------+------+------+\n");
+    for (int i = 0; i < size; i++)
+        printf("| %3d | %-12.1f | %-10.1f | %-5.1f | %-4.1f | %-9.1f | %-4.1f | %-4.1f |\n",
+               arr[i].pid, arr[i].at, arr[i].bt, arr[i].st, arr[i].et, arr[i].wt, arr[i].tat, arr[i].rt);
+    printf("+-----+--------------+------------+-------+------+-----------+------+------+\n");
+    printf("|                                 | Total        | %-9.1f | %-4.1f |      |\n", tot_wt, tot_tat);
+    printf("|                                 | Average      | %-9.1f | %-4.1f |      |\n", tot_wt / size, tot_tat / size);
+    printf("+-----+--------------+------------+-------+------+-----------+------+------+\n\n");
+
 }
 
-void SJF(Process * const p,const int size){
-	int completed = 0;
+void SJF(Process *const p, const int size)
+{
+    int completed = 0;
     int last_process = 0;
     int index = 0;
     int prev_id = -1;
     float tot_tat = 0;
     float tot_wt = 0;
-
+    int count = 0;
+    Process gantt[20];
     Process tmp;
     PQueue processQueue = createPQueue(size);
     int time = 0;
@@ -77,114 +178,44 @@ void SJF(Process * const p,const int size){
     for (int i = 0; i < size; i++)
         total_time += p[i].bt;
 
+    while (completed != size)
+    {
+        for (int i = last_process; i < size; ++i)
+            if (p[i].at <= time)
+            {
+                enqueue(processQueue, p[i]);
+                last_process = i + 1;
+            }
 
-    printf("\nGANTT CHART[EACH CELL IS 1 Second]\n");
-    for (int i = 0; i < total_time; i++)
-        printf("+---");
-    printf("+\n");
-
-	while(completed != size){
-		for(int i = last_process;i < size ; ++i)
-			if (p[i].at <= time){
-				enqueue(processQueue, p[i]);
-                last_process = i+1;
-			}
-        
-		tmp = dequeue(processQueue);
+        tmp = dequeue(processQueue);
         index = getIndex(p, size, tmp);
 
-		if(tmp.rem_t == -1){
-            printf("| - ");
+        if (tmp.rem_t == -1)
+        {
             time++;
             continue;
         }
 
         p[index].st = time;
         p[index].rt = p[index].st - p[index].at;
-		p[index].et = time + p[index].bt;
+        p[index].et = time + p[index].bt;
         p[index].tat = p[index].et - p[index].at;
         tot_tat += p[index].tat;
         p[index].wt = p[index].tat - p[index].bt;
         tot_wt += p[index].wt;
         completed++;
-		time += p[index].bt;
-			
-		for(int t = 0 ; t < p[index].bt; t++)
-            printf("| %1d ", p[index].pid);
-	}
-    printf("|\n");
-    for (int i = 0; i < total_time; i++)
-        printf("+---");
-    printf("+\n\n");
+        time += p[index].bt;
+        gantt[count++] = p[index];
+    }
+
+    gantt_chart(gantt, count, time);
+
     printf("+-----+--------------+------------+-------+------+-----------+------+------+\n");
     printf("| PID | Arrival Time | Burst Time | Start | End  | Wait Time | TAT  | RT   |\n");
     printf("+-----+--------------+------------+-------+------+-----------+------+------+\n");
     for (int i = 0; i < size; i++)
         printf("| %3d | %-12.1f | %-10.1f | %-5.1f | %-4.1f | %-9.1f | %-4.1f | %-4.1f |\n",
                p[i].pid, p[i].at, p[i].bt, p[i].st, p[i].et, p[i].wt, p[i].tat, p[i].rt);
-    printf("+-----+--------------+------------+-------+------+-----------+------+------+\n");
-    printf("|                                 | Total        | %-9.1f | %-4.1f |      |\n", tot_wt, tot_tat);
-    printf("|                                 | Average      | %-9.1f | %-4.1f |      |\n", tot_wt / size, tot_tat / size);
-    printf("+-----+--------------+------------+-------+------+-----------+------+------+\n\n");
-
-}
-
-
-	
-
-void putChart(Process *const p, const int N)
-{
-    printf("GANTT CHART\n\n");
-    line(N);
-    for (int i = 0; i <= 2; i++)
-        if (i == 1)
-        {
-            for (int j = 0; j < N; j++)
-                printf("|    P%-2d   ", p[j].pid);
-            printf("|");
-        }
-		
-    printf("\n");
-    line(N);
-    for (int i = 0; i < N; i++)
-        printf("%.1f       ", p[i].st);
-
-    printf("%.1f\n", p[N - 1].et);
-}
-
-void putTable(Process *const p, const int size)
-{
-    if (!size)
-        return;
-
-    float tot_wt = 0, tot_tat = 0;
-    printf("+-----+--------------+------------+-------+------+-----------+------+------+\n");
-    printf("| PID | Arrival Time | Burst Time | Start | End  | Wait Time | TAT  | RT   |\n");
-    printf("+-----+--------------+------------+-------+------+-----------+------+------+\n");
-
-    p[0].wt = 0;
-    p[0].st = 0;
-    p[0].et = p[0].bt;
-    p[0].rt = p[0].st - p[0].at;
-    p[0].tat = p[0].et - p[0].at;
-    tot_tat = p[0].tat;
-    tot_wt = 0;
-    printf("| %3d | %-12.1f | %-10.1f | %-5.1f | %-4.1f | %-9.1f | %-4.1f | %-4.1f |\n",
-           p[0].pid, p[0].at, p[0].bt, p[0].st, p[0].et, p[0].wt, p[0].tat, p[0].rt);
-
-    for (int i = 1; i < size; i++)
-    {
-        p[i].st = p[i - 1].et;
-        p[i].et = p[i].st + p[i].bt;
-        p[i].rt = p[i].st - p[i].at;
-
-        p[i].tat = p[i].et - p[i].at;
-        tot_tat += p[i].tat;
-        p[i].wt = p[i].tat - p[i].bt;
-        tot_wt += p[i].wt;
-        printf("| %3d | %-12.1f | %-10.1f | %-5.1f | %-4.1f | %-9.1f | %-4.1f | %-4.1f |\n",
-               p[i].pid, p[i].at, p[i].bt, p[i].st, p[i].et, p[i].wt, p[i].tat, p[i].rt);
-    }
     printf("+-----+--------------+------------+-------+------+-----------+------+------+\n");
     printf("|                                 | Total        | %-9.1f | %-4.1f |      |\n", tot_wt, tot_tat);
     printf("|                                 | Average      | %-9.1f | %-4.1f |      |\n", tot_wt / size, tot_tat / size);
@@ -203,27 +234,26 @@ void SRTF(Process *const p, const int size)
     Process tmp;
     PQueue processQueue = createPQueue(size);
     int time = 0;
+    Process gantt[20];
+    int count = 0;
 
     int total_time = 0;
     for (int i = 0; i < size; i++)
         total_time += p[i].bt;
 
-    printf("\nGANTT CHART[EACH CELL IS 1 Second]\n");
-    for (int i = 0; i < total_time; i++)
-        printf("+---");
-    printf("+\n");
-
     while (completed < size)
     {
-        for(int i = last_process;i < size ; ++i)
-			if (p[i].at == time){
-				enqueue(processQueue, p[i]);
-				last_process = i+1;
-			}
-    
+        for (int i = last_process; i < size; ++i)
+            if (p[i].at == time)
+            {
+                enqueue(processQueue, p[i]);
+                last_process = i + 1;
+            }
+
         tmp = dequeue(processQueue);
-        if(tmp.rem_t == -1){
-            printf("| - ");
+        if (tmp.rem_t == -1)
+        {
+            printf("| -  ");
             time++;
             continue;
         }
@@ -233,10 +263,16 @@ void SRTF(Process *const p, const int size)
         { //Fresh Process
             p[index].st = time;
             p[index].rt = p[index].st - p[index].at;
+            gantt[count++] = p[index];
         }
 
         tmp.rem_t--;
         p[index].rem_t--;
+        if (p[index].pid != gantt[count - 1].pid)
+        {
+            gantt[count++] = p[index];
+            gantt[count - 1].st = time;
+        }
 
         if (tmp.rem_t == 0)
         {
@@ -248,14 +284,11 @@ void SRTF(Process *const p, const int size)
             completed++;
         }
         else
-            enqueue(processQueue,p[index]);
-        printf("| %1d ", p[index].pid);
+            enqueue(processQueue, p[index]);
+        printf("| P%1d ", p[index].pid);
         time++;
     }
-    printf("|\n");
-    for (int i = 0; i < total_time; i++)
-        printf("+---");
-    printf("+\n\n");
+    gantt_chart(gantt, count, total_time);
 
     printf("+-----+--------------+------------+-------+------+-----------+------+------+\n");
     printf("| PID | Arrival Time | Burst Time | Start | End  | Wait Time | TAT  | RT   |\n");
@@ -267,7 +300,6 @@ void SRTF(Process *const p, const int size)
     printf("|                                 | Total        | %-9.1f | %-4.1f |      |\n", tot_wt, tot_tat);
     printf("|                                 | Average      | %-9.1f | %-4.1f |      |\n", tot_wt / size, tot_tat / size);
     printf("+-----+--------------+------------+-------+------+-----------+------+------+\n\n");
-
 }
 
 int main(void)
@@ -276,7 +308,7 @@ int main(void)
     int choice = 5;
     do
     {
-        system("clear");
+        //system("clear");
         printf("1 - FCFS\n");
         printf("2 - SJF\n");
         printf("3 - Exit\n");
@@ -292,8 +324,6 @@ int main(void)
 
             Process *p = getProcesses(size);
             FCFS(p, size);
-            putTable(p, size);
-            putChart(p, size);
             printf("Press ENTER to continue...");
             getchar();
         }
