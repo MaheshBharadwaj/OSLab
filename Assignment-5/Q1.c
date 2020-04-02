@@ -20,6 +20,7 @@ int main()
 	pid = fork();
 	if(pid > 0)
 	{
+		printf("Parent Process\n");
 		a = shmat(id, NULL, 0);
 		a[0] = '\0';
 		printf("Enter a string: ");
@@ -31,6 +32,7 @@ int main()
 	{
 		b = shmat(id, NULL, 0);
 		while(b[0] == '\0');
+		printf("\nChild Process:\n");
 		strupr(b);
 		printf("Uppercase: %s\n", b);
 		shmdt(b);
