@@ -8,6 +8,6 @@ gcc file.c -o exec-file
 #After Compilation
 ./exec-file
 ```
- - **1 - System Calls**
- - **2 - System Commands**
- - **3 - CPU Scheduling Algorithms Part-I [SJF,FCFS & SRTF]**
+ - [Exercise 2 - Simulation of System Commands](./Assignment-02)
+ - [Exercise 3 -CPU Scheduling Algorithms Part-I \[SJF,FCFS & SRTF\] ](./Assignment-03)
+ - test
