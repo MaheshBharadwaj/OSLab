@@ -12,7 +12,7 @@ int main()
 {
 	char *a;
 	int fd;
-	int id = shmget(126, 50, IPC_CREAT);
+	int id = shmget(101, 50, IPC_CREAT);
 	a = shmat(id, NULL, 0);
 	while(a[0] == '\0');
 	fd = open(a, O_RDONLY);
@@ -28,7 +28,7 @@ int main()
 		a[i] = r;
 		i++;
 	}
-	printf("Read!\n");
+	printf("File Read!\n");
 	shmdt(a);
 	shmctl(id, IPC_RMID, NULL);
 }

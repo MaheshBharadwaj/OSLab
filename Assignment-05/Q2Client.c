@@ -1,4 +1,3 @@
-
 #include<sys/ipc.h>
 #define NULL 0
 #include<sys/shm.h>
@@ -14,7 +13,7 @@ int main()
 	int id;
 	char *a;
 	char filename[100];
-	id = shmget(126, 50, IPC_CREAT | 00666);
+	id = shmget(101, 50, IPC_CREAT | 00666);
 	a = shmat(id, NULL, 0);
 	a[0] = '\0';
 	printf("Enter file name: ");
@@ -23,6 +22,12 @@ int main()
 	strcat(filename,"-copy");
 	sleep(3);
 	while(a[0] == '\0');
+
+	if(strcmp(a,"Does not exit!\n")){
+		printf("%s", a);	
+		return 1;
+	}
+
 	int fd = open(filename,O_WRONLY | O_CREAT,S_IRWXU);
 	printf("%s", a);
 	write(fd,a,strlen(a));

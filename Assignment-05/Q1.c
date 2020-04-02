@@ -24,7 +24,7 @@ int main()
 		a = shmat(id, NULL, 0);
 		a[0] = '\0';
 		printf("Enter a string: ");
-		scanf("%s", a);
+		scanf("%[^\n]", a);
 		wait(NULL);
 		shmdt(a);
 	}
