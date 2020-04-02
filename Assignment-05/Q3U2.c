@@ -15,7 +15,7 @@ int main()
 	a = shmat(id, NULL, 0);
 	while(1) {
 		a[0] = '\0';
-		printf("User: ");
+		printf("You: ");
 		scanf("%[^\n]",a);
 		getchar();
 		if(strcmp(a,"bye") == 0) break;

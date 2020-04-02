@@ -17,7 +17,7 @@ int main()
 		printf("User: %s\n", a);
 		if(strcmp(a,"bye") == 0) break;
 		a[0] = '\0';
-		printf("Server: ");
+		printf("You: ");
 		scanf("%[^\n]",a);
 		getchar();
 		if(strcmp(a,"bye") == 0) break;
