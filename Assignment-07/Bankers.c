@@ -16,11 +16,13 @@ typedef struct Process
     Resource max[MAX];
     Resource alloc[MAX];
     Resource need[MAX];
+    unsigned completed : 1;
     //Resource temp[MAX];
 } Process;
 
 void ReadData(int *const n_process, Process *const arr, int *const n_resources, Resource *const avail);
 void PrintData(const int n_process, const Process *const arr, const int n_resources, const Resource *const avail);
+int SafetySequence(const int n_process, const Process *const arr, const int n_resoures, const Resource *const avail);
 
 int main()
 {
@@ -30,7 +32,7 @@ int main()
         choice = -1;
     ;
 
-    Process p[MAX];
+    Process p[MAX * 2];
     Resource avail[MAX];
 
     while (1)
@@ -52,9 +54,9 @@ int main()
         case 2:
             PrintData(n_process, p, n_resources, avail);
             break;
-        // case 3:
-        //     SafetySequence(n_process, p, n_resource, avail);
-        //     break;
+        case 3:
+            SafetySequence(n_process, p, n_resources, avail);
+            break;
         case 4:
             exit(0);
 
@@ -83,7 +85,8 @@ void ReadData(int *const n_process, Process *const arr, int *const n_resources, 
 
     for (int i = 0; i < *n_process; i++)
     {
-        printf("Enter Process ID, Max Required, Allocated");
+        arr[i].completed = 0;
+        printf("Enter Process ID, Max Required, Allocated: ");
         scanf("%d", &arr[i].pid);
 
         for (int j = 0; j < *n_resources; j++)
@@ -178,4 +181,78 @@ void PrintData(const int n_process, const Process *const arr, const int n_resour
 
         printf("  |\n");
     }
+    printf(" +-----+----------------+---------------+----------------+---------------+\n");
+
+}
+
+int findProcess(const int n_process, const Process *const arr, const int n_resources, const Resource *const avail)
+{
+    int index = -1;
+    int flag = 0;
+    for (int i = 0; i < n_process; i++)
+    {
+        flag = 0;
+
+        if (arr[i].completed)
+            continue;
+
+        for (int j = 0; j < n_resources; j++)
+        {
+            if (arr[i].need[j].qty > avail[j].qty)
+            {
+                flag = 1;
+                break;
+            }
+        }
+
+        if (!flag)
+            index = i;
+            break;
+    }
+    return index;
+}
+
+int SafetySequence(const int n_process, const Process *const arr, const int n_resources, const Resource *const avail)
+{
+    //Creating a copy of the processes
+    Process p[MAX * 2];
+    Resource avail_copy[MAX];
+    for(int i = 0 ; i < n_process ; i++)
+        p[i] = arr[i];
+
+    for(int i = 0 ; i < n_resources ; i++)
+        avail_copy[i] = avail[i];
+
+    int completed = 0;
+    int index;
+
+    int sequence[MAX];
+
+    while (completed < n_process){
+        index = findProcess(n_process, p, n_resources, avail_copy);
+
+        if (index == -1)
+            break;
+
+        sequence[completed++] = p[index].pid; 
+        p[index].completed = 1;
+
+        for (int i = 0 ; i < n_resources ; i++){
+            avail_copy[i].qty += p[index].alloc[i].qty;
+        }   
+
+    }
+
+    //All Processes done, ie safe sequence exists
+    if(completed == n_process){
+        printf(" Safe Sequence Exists!\n");
+        printf(" < ");
+        for(int i = 0 ; i < n_process ; i++)
+            printf("P%2d ", sequence[i]);
+        printf(">\n");
+        return 1;
+    } 
+    else
+        printf(" No Safe Sequence Found!");
+    return 0;
 }
