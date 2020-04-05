@@ -20,9 +20,10 @@ typedef struct Process
     //Resource temp[MAX];
 } Process;
 
-void ReadData(int *const n_process, Process *const arr, int *const n_resources, Resource *const avail);
-void PrintData(const int n_process, const Process *const arr, const int n_resources, const Resource *const avail);
-int SafetySequence(const int n_process, const Process *const arr, const int n_resoures, const Resource *const avail);
+void ReadData(int *const, Process *const, int *const, Resource *const);
+void PrintData(const int, const Process *const, const int, const Resource *const);
+int SafeSequence(const int, const Process *const, const int, const Resource *const);
+void RequestAllocation(const int, Process *const, const int, Resource *const);
 
 int main()
 {
@@ -40,8 +41,9 @@ int main()
         printf("\t\t\tBANKERS ALGORITHM\n");
         printf(" 1 - Read Data\n");
         printf(" 2 - Print Data\n");
-        printf(" 3 - Safety Sequence\n");
-        printf(" 4 - exit\n");
+        printf(" 3 - Safe Sequence\n");
+        printf(" 4 - Request for Resource\n");
+        printf(" 0 - exit\n");
         printf(" ---------------------------\n");
         printf(" Enter your choice : ");
         scanf("%d", &choice);
@@ -55,11 +57,13 @@ int main()
             PrintData(n_process, p, n_resources, avail);
             break;
         case 3:
-            SafetySequence(n_process, p, n_resources, avail);
+            SafeSequence(n_process, p, n_resources, avail);
             break;
         case 4:
+            RequestAllocation(n_process, p, n_resources, avail);
+            break;
+        case 0:
             exit(0);
-
         default:
             printf(" Invalid Option!\n");
             break;
@@ -143,9 +147,9 @@ void PrintData(const int n_process, const Process *const arr, const int n_resour
 
     for (int k = 0; k < n_process; k++)
     {
-        printf(" | P%2d |  ", arr[k].pid);
+        printf(" | P%-2d |  ", arr[k].pid);
         for (int i = 0; i < n_resources; i++)
-            printf("%2d ", arr[k].alloc[i].qty);
+            printf("%-2d ", arr[k].alloc[i].qty);
 
         for (int i = n_resources * 3; i < strlen(" Allocated  "); i++)
             printf(" ");
@@ -153,7 +157,7 @@ void PrintData(const int n_process, const Process *const arr, const int n_resour
         printf("  |  ");
 
         for (int i = 0; i < n_resources; i++)
-            printf("%2d ", arr[k].need[i].qty);
+            printf("%-2d ", arr[k].need[i].qty);
 
         for (int i = n_resources * 3; i < strlen("  Needed   "); i++)
             printf(" ");
@@ -161,7 +165,7 @@ void PrintData(const int n_process, const Process *const arr, const int n_resour
         printf("  |  ");
 
         for (int i = 0; i < n_resources; i++)
-            printf("%2d ", arr[k].max[i].qty);
+            printf("%-2d ", arr[k].max[i].qty);
 
         for (int i = n_resources * 3; i < strlen("  Maximum   "); i++)
             printf(" ");
@@ -171,7 +175,7 @@ void PrintData(const int n_process, const Process *const arr, const int n_resour
         if (k == 0)
         {
             for (int i = 0; i < n_resources; i++)
-                printf("%2d ", avail[i].qty);
+                printf("%-2d ", avail[i].qty);
 
             for (int i = n_resources * 3; i < strlen(" Available "); i++)
                 printf(" ");
@@ -182,14 +186,12 @@ void PrintData(const int n_process, const Process *const arr, const int n_resour
         printf("  |\n");
     }
     printf(" +-----+----------------+---------------+----------------+---------------+\n");
-
 }
 
-int findProcess(const int n_process, const Process *const arr, const int n_resources, const Resource *const avail)
+int findProcess(const int n_process, const Process *const arr, const int n_resources, const Resource *const avail, const int index)
 {
-    int index = -1;
     int flag = 0;
-    for (int i = 0; i < n_process; i++)
+    for (int i = index + 1; i != index; i = (i + 1) % n_process)
     {
         flag = 0;
 
@@ -206,53 +208,102 @@ int findProcess(const int n_process, const Process *const arr, const int n_resou
         }
 
         if (!flag)
-            index = i;
+            return i;
+
+        if (index == -1 && i == n_process - 1)
             break;
     }
-    return index;
+    return -1;
 }
 
-int SafetySequence(const int n_process, const Process *const arr, const int n_resources, const Resource *const avail)
+int SafeSequence(const int n_process, const Process *const arr, const int n_resources, const Resource *const avail)
 {
     //Creating a copy of the processes
     Process p[MAX * 2];
     Resource avail_copy[MAX];
-    for(int i = 0 ; i < n_process ; i++)
+    for (int i = 0; i < n_process; i++)
         p[i] = arr[i];
 
-    for(int i = 0 ; i < n_resources ; i++)
+    for (int i = 0; i < n_resources; i++)
         avail_copy[i] = avail[i];
 
     int completed = 0;
-    int index;
+    int index = -1;
 
     int sequence[MAX];
 
-    while (completed < n_process){
-        index = findProcess(n_process, p, n_resources, avail_copy);
+    while (completed < n_process)
+    {
+        index = findProcess(n_process, p, n_resources, avail_copy, index);
 
         if (index == -1)
             break;
 
-        sequence[completed++] = p[index].pid; 
+        sequence[completed++] = p[index].pid;
         p[index].completed = 1;
 
-        for (int i = 0 ; i < n_resources ; i++){
+        for (int i = 0; i < n_resources; i++)
+        {
             avail_copy[i].qty += p[index].alloc[i].qty;
-        }   
-
+        }
+        printf("\n");
     }
 
     //All Processes done, ie safe sequence exists
-    if(completed == n_process){
+    if (completed == n_process)
+    {
         printf(" Safe Sequence Exists!\n");
         printf(" < ");
-        for(int i = 0 ; i < n_process ; i++)
-            printf("P%2d ", sequence[i]);
+        for (int i = 0; i < n_process; i++)
+            printf("P%-2d ", sequence[i]);
         printf(">\n");
         return 1;
-    } 
+    }
     else
         printf(" No Safe Sequence Found!");
     return 0;
+}
+
+void RequestAllocation(const int n_process, Process *const arr, const int n_resources, Resource *const avail)
+{
+    int pid;
+    Resource request[MAX];
+
+    printf(" PID & Enter the request vector: ");
+    scanf("%d", &pid);
+    for (int i = 0; i < n_resources; i++)
+        scanf("%d", &request[i].qty);
+
+    for (int i = 0; i < n_resources; i++)
+        if (request[i].qty > avail[i].qty || request[i].qty > arr[pid].need[i].qty)
+        {
+            printf(" Invalid Request! Cannot be granted!\n");
+            return;
+        }
+
+    Resource old_alloc[MAX], old_need[MAX], old_avail[MAX];
+
+
+    for (int i = 0; i < n_resources; i++)
+    {
+        old_alloc[i].qty = arr[pid].alloc[i].qty;
+        old_need[i].qty = arr[pid].need[i].qty;
+        old_avail[i].qty = avail[i].qty;
+        avail[i].qty -= request[i].qty;
+        arr[pid].need[i].qty -= request[i].qty;
+        arr[pid].alloc[i].qty += request[i].qty;
+    }
+
+    if (SafeSequence(n_process, arr, n_resources, avail))
+        printf(" Safe Sequence exists & Hence Request granted!\n");
+    else
+    {
+        printf(" Request Cannot be granted as safe sequence doesn't exist!\n");
+        for (int i = 0; i < n_resources; i++)
+        {
+            arr[pid].alloc[i].qty = old_alloc[i].qty;
+            arr[pid].need[i].qty = old_need[i].qty;
+            avail[i].qty = old_avail[i].qty;
+        }
+    }
 }
