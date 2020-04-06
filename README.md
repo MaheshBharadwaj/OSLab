@@ -8,9 +8,9 @@
  - [Exercise 06 - Producer/Consumer Problem using Semaphores](./Assignment-06)
  - [Exercise 07 - Banker's Algorithm for Deadlock Avoidance](./Assignment-07)
  - [Exercise 08 - Memory Allocation Methods for Fixed Partitions](./Assignment-08)
-
+ - [Exercise 09 - Page Management Algorithms](./Assignment-09)
 ## How to compile:
-** -lpthread required for assignment 6 **
+**-lpthread required for assignment 6**
 ```bash
 gcc file.c -o exec-file -lpthread
 ```
