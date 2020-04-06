@@ -40,7 +40,7 @@ typedef enum Mode
 
 void FFAlloc(List, List, List, const int, const unsigned int);
 void BFAlloc(List, List, List, const int, const unsigned int);
-//void WFAlloc (List, List, List, const int, const unsigned int);
+void WFAlloc(List, List, List, const int, const unsigned int);
 void Dealloc(List, List, List, const int);
 void Coalesce(List, List);
 
@@ -130,7 +130,7 @@ int main()
                     BFAlloc(memory, free, allocated, pid, size);
                     break;
                 case WorstFit:
-                    //WFAlloc();
+                    WFAlloc(memory, free, allocated, pid, size);
                 default:
                     break;
                 }
@@ -255,19 +255,80 @@ void BFAlloc(List memory, List free, List alloc, const int pid, const unsigned i
         return;
     }
 
-    p = delete(ptr);
-    p -> state = pid;
-
-    if(left_over == 0)
+    p = delete (ptr);
+    p->state = pid;
+    p->size = size;
+    if (left_over == 0)
         insert(alloc, p);
-    else{
-        fragment = (Partition*)malloc(sizeof(Partition));
-        fragment -> start = p  -> start + size;
-        fragment -> end = p -> end;
-        fragment -> state = HOLE;
-        fragment -> size = fragment -> end - fragment -> start;
-        p -> end = p -> start + size;
+    else
+    {
+        fragment = (Partition *)malloc(sizeof(Partition));
+        fragment->start = p->start + size;
+        fragment->end = p->end;
+        fragment->state = HOLE;
+        fragment->size = fragment->end - fragment->start;
+        p->end = p->start + size;
+        insert(alloc, p);
+        insert(memory, fragment);
+        insert(free, fragment);
+    }
 
+    printf(" Successfully Allocated Memory!\n");
+}
+
+void WFAlloc(List memory, List free, List alloc, const int pid, const unsigned int size)
+{
+
+    if (free->next == NULL)
+    {
+        printf(" No Free Space Available!\n");
+        return;
+    }
+
+    unsigned int left_over = 0;
+
+    Node *ptr = NULL;
+
+    Partition *p, *fragment;
+
+    List tmp = free;
+    while (tmp->next != NULL)
+    {
+        if (tmp->next->d->state != HOLE)
+        {
+            tmp = tmp->next;
+            continue;
+        }
+        if (tmp->next->d->size >= size)
+            if (tmp->next->d->size - size > left_over)
+            {
+                left_over = tmp->next->d->size - size;
+                ptr = tmp;
+            }
+        tmp = tmp->next;
+    }
+
+    if (!ptr)
+    {
+        printf(" Unable to allocate required memory!\n");
+        return;
+    }
+
+    p = delete (ptr);
+    p->state = pid;
+    p->size = size;
+
+    if (left_over == 0)
+        insert(alloc, p);
+    else
+    {
+        fragment = (Partition *)malloc(sizeof(Partition));
+        fragment->start = p->start + size;
+        fragment->end = p->end;
+        fragment->state = HOLE;
+        fragment->size = fragment->end - fragment->start;
+        p->end = p->start + size;
+        insert(alloc, p);
         insert(memory, fragment);
         insert(free, fragment);
     }
