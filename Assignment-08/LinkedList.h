@@ -25,7 +25,7 @@ void insert(List head, const Data d)
 
     while (tmp->next != NULL)
     {
-        if (tmp->next->d->start > d->end)
+        if (tmp->next->d->start > d->start)
             break;
         tmp = tmp->next;
     }
