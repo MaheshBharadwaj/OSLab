@@ -59,10 +59,31 @@ void display(List head)
         return;
     }
 
+    int count = 0;
+    while(tmp != NULL){
+        tmp = tmp -> next;
+        count++;
+    }
+    printf("\n  ");
+    for(int i = 0; i < count; i++)
+        printf("+----------+   ");
+    printf("\n  ");
+
+    tmp = head -> next;
     while (tmp != NULL)
     {
-        printf(" Start: %-3d  End: %-3d  Size: %-3d  State: %s\n", tmp->d->start, tmp->d->end,
-                tmp->d->size,printState(*(tmp->d)));
+        printf("|   %-4s   |   ", printState(*(tmp->d)));
         tmp = tmp->next;
     }
+    printf("\n  ");
+    for(int i = 0; i < count; i++)
+        printf("+----------+   ");
+    printf("\n ");
+
+    tmp = head -> next;
+    for(int i = 0; i < count; i++){
+        printf("%-3d        %-3d ", tmp -> d -> start, tmp -> d -> end);
+        tmp = tmp -> next;
+    }
+
 }
