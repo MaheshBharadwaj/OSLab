@@ -41,8 +41,8 @@ typedef enum Mode
 void FFAlloc(List, List, List, const int, const unsigned int);
 //void BFAlloc (List, List, List, const int, const unsigned int);
 //void WFAlloc (List, List, List, const int, const unsigned int);
-//void Dealloc (List, List, List, const int);
-//void Coalesce(List);
+void Dealloc (List, List, List, const int);
+//void Coalesce(List, List);
 
 int main()
 {
@@ -87,6 +87,10 @@ int main()
             printf("Invalid Mode!\n");
             continue;
         }
+
+        if (m == 0)
+            return 0;
+
         while (1)
         {
             printf("\n\n");
@@ -132,7 +136,9 @@ int main()
                 }
                 break;
             case 2:
-                //Dealloc();
+                printf(" Enter PID of process to delete: ");
+                scanf("%d", &pid);
+                Dealloc(memory, free, allocated, pid);
                 break;
             case 3:
                 printf(" ALLOCATED PARTITIONS:\n");
@@ -169,8 +175,9 @@ void FFAlloc(List memory, List free, List alloc, const int pid, const unsigned i
     List tmp = free;
     while (tmp->next != NULL)
     {
-        if (tmp->next->d->state != HOLE){
-            tmp = tmp -> next;
+        if (tmp->next->d->state != HOLE)
+        {
+            tmp = tmp->next;
             continue;
         }
         if (tmp->next->d->size >= size)
@@ -201,10 +208,43 @@ void FFAlloc(List memory, List free, List alloc, const int pid, const unsigned i
                 break;
             }
         }
-        tmp = tmp -> next;
+        tmp = tmp->next;
     }
     if (!flag)
         printf(" Unable to Allocate Required Memory!\n");
     else
         printf(" Successfully Allocated!\n");
+}
+
+void Dealloc(List memory, List free, List alloc, const int pid)
+{
+    if (alloc->next == NULL)
+    {
+        printf(" No Process Allocated!\n");
+        return;
+    }
+    Partition *p;
+    Node *tmp = alloc;
+    int flag = 0;
+
+    while (tmp->next != NULL)
+    {
+        if (tmp->next->d->state == pid)
+        {
+            flag = 1;
+            break;
+        }
+        tmp = tmp -> next;
+    }
+
+    if (flag == 0){
+        printf(" No such Process Found!\n");
+        return;
+    }
+
+    p = delete(tmp);
+    p -> state = HOLE;
+    insert(free, p);
+
+    printf(" Successfully De-Allocated Memory\n");
 }
