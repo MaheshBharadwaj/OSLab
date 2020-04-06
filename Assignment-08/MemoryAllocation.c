@@ -41,8 +41,8 @@ typedef enum Mode
 void FFAlloc(List, List, List, const int, const unsigned int);
 //void BFAlloc (List, List, List, const int, const unsigned int);
 //void WFAlloc (List, List, List, const int, const unsigned int);
-void Dealloc (List, List, List, const int);
-//void Coalesce(List, List);
+void Dealloc(List, List, List, const int);
+void Coalesce(List, List);
 
 int main()
 {
@@ -136,7 +136,7 @@ int main()
                 }
                 break;
             case 2:
-                printf(" Enter PID of process to delete: ");
+                printf(" Enter PID of process to exit: ");
                 scanf("%d", &pid);
                 Dealloc(memory, free, allocated, pid);
                 break;
@@ -149,7 +149,7 @@ int main()
                 display(memory);
                 break;
             case 4:
-                //Coalesce();
+                Coalesce(memory, free);
             default:
                 break;
             }
@@ -234,17 +234,66 @@ void Dealloc(List memory, List free, List alloc, const int pid)
             flag = 1;
             break;
         }
-        tmp = tmp -> next;
+        tmp = tmp->next;
     }
 
-    if (flag == 0){
+    if (flag == 0)
+    {
         printf(" No such Process Found!\n");
         return;
     }
 
-    p = delete(tmp);
-    p -> state = HOLE;
+    p = delete (tmp);
+    p->state = HOLE;
     insert(free, p);
 
     printf(" Successfully De-Allocated Memory\n");
+}
+
+void Coalesce(List memory, List free)
+{
+    if (!free->next)
+        return;
+    if (!free->next->next)
+        return;
+    Node *l = NULL,
+         *r = NULL;
+    Partition *left = NULL,
+              *right = NULL,
+              *p = NULL;
+
+    Node *tmp = free, *tmp2 = memory;
+
+    while (tmp->next != NULL && tmp->next->next != NULL)
+    {
+        if (tmp->next->d->end == tmp->next->next->d->start)
+        {
+            l = tmp;
+            left = tmp->next->d;
+            r = tmp->next;
+            right = tmp->next->next->d;
+            p = (Partition *)malloc(sizeof(Partition));
+            p->start = left->start;
+            p->end = right->end;
+            p->size = p->end - p->start;
+            p->state = HOLE;
+            delete (r);
+            delete (l);
+            insert(free, p);
+            while (tmp2->next != NULL && tmp2->next->next != NULL)
+            {
+                if (tmp2->next->d == left)
+                {
+                    l = tmp2;
+                    r = tmp2->next;
+                    delete (r);
+                    delete (l);
+                    insert(memory, p);
+                    break;
+                }
+                tmp2 = tmp2->next;
+            }
+        }
+        tmp = tmp->next;
+    }
 }
