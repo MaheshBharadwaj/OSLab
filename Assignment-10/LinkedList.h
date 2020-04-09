@@ -91,3 +91,16 @@ void display(List head)
         return;
     }
 }
+
+int size(List head){
+    Node * tmp = head -> next;
+    if(tmp == NULL)
+        return 0;
+    
+    int count = 0;
+    while(tmp){
+        tmp = tmp -> next;
+        count++;
+    }
+    return count;
+}
