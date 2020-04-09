@@ -35,7 +35,7 @@ void insertFirst(List head, const Data d){
     new -> d = d;
     
     new -> next = head -> next;
-    head -> next = tmp;
+    head -> next = new;
 }
 
 Data deleteFirst(List head)
