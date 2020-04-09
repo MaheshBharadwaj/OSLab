@@ -38,6 +38,22 @@ void insertFirst(List head, const Data d){
     head -> next = new;
 }
 
+Data delete (List prev)
+{
+    Data rVal = -1;
+    if (!prev)
+        return rVal;
+    if (!prev->next)
+        return rVal;
+
+    Node *tmp = prev->next;
+    rVal = tmp->d;
+    prev->next = prev->next->next;
+    free(tmp);
+
+    return rVal;
+}
+
 Data deleteFirst(List head)
 {
     Data rVal = -1;
@@ -59,27 +75,12 @@ Data deleteLast(List head){
     }
 
     Node *tmp = head;
-    while(tmp -> next != NULL)
+    while(tmp -> next -> next != NULL)
         tmp = tmp -> next;
 
     delete(tmp);
 }
 
-Data delete (List prev)
-{
-    Data rVal = -1;
-    if (!prev)
-        return rVal;
-    if (!prev->next)
-        return rVal;
-
-    Node *tmp = prev->next;
-    rVal = tmp->d;
-    prev->next = prev->next->next;
-    free(tmp);
-
-    return rVal;
-}
 
 void display(List head)
 {
@@ -90,9 +91,14 @@ void display(List head)
         printf(" Empty!\n");
         return;
     }
+
+    while(tmp){
+        printf(" %-2d", tmp -> d);
+        tmp = tmp -> next;
+    }
 }
 
-int size(List head){
+int length(List head){
     Node * tmp = head -> next;
     if(tmp == NULL)
         return 0;
@@ -103,4 +109,18 @@ int size(List head){
         count++;
     }
     return count;
+}
+
+List search(List head, const Data d){
+    if(head -> next == NULL)
+        return NULL;
+
+    Node* tmp = head;
+    while(tmp -> next){
+        if(tmp -> next -> d == d)
+            return tmp;
+        tmp = tmp -> next;
+    }
+
+    return NULL;
 }
