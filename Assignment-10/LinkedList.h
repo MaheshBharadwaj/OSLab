@@ -4,6 +4,7 @@ typedef struct Node
 {
     Data d;
     struct Node *next;
+    int freq;
 } Node;
 
 typedef Node *List;
@@ -20,7 +21,7 @@ void insertLast(List head, const Data d)
 {
     Node *new = (Node *)malloc(sizeof(Node));
     new->d = d;
-
+    new->freq = 1;
     Node *tmp = head;
 
     while (tmp->next != NULL)
@@ -30,12 +31,14 @@ void insertLast(List head, const Data d)
     tmp->next = new;
 }
 
-void insertFirst(List head, const Data d){
-    Node *new = (Node*)malloc(sizeof(Node));
-    new -> d = d;
-    
-    new -> next = head -> next;
-    head -> next = new;
+void insertFirst(List head, const Data d)
+{
+    Node *new = (Node *)malloc(sizeof(Node));
+    new->d = d;
+    new->freq = 1;
+
+    new->next = head->next;
+    head->next = new;
 }
 
 Data delete (List prev)
@@ -66,7 +69,8 @@ Data deleteFirst(List head)
     delete (head);
 }
 
-Data deleteLast(List head){
+Data deleteLast(List head)
+{
     Data rVal = -1;
     if (head->next == NULL)
     {
@@ -75,12 +79,11 @@ Data deleteLast(List head){
     }
 
     Node *tmp = head;
-    while(tmp -> next -> next != NULL)
-        tmp = tmp -> next;
+    while (tmp->next->next != NULL)
+        tmp = tmp->next;
 
-    delete(tmp);
+    delete (tmp);
 }
-
 
 void display(List head)
 {
@@ -92,34 +95,39 @@ void display(List head)
         return;
     }
 
-    while(tmp){
-        printf(" %-2d", tmp -> d);
-        tmp = tmp -> next;
+    while (tmp)
+    {
+        printf(" %-2d", tmp->d);
+        tmp = tmp->next;
     }
 }
 
-int length(List head){
-    Node * tmp = head -> next;
-    if(tmp == NULL)
+int length(List head)
+{
+    Node *tmp = head->next;
+    if (tmp == NULL)
         return 0;
-    
+
     int count = 0;
-    while(tmp){
-        tmp = tmp -> next;
+    while (tmp)
+    {
+        tmp = tmp->next;
         count++;
     }
     return count;
 }
 
-List search(List head, const Data d){
-    if(head -> next == NULL)
+List search(List head, const Data d)
+{
+    if (head->next == NULL)
         return NULL;
 
-    Node* tmp = head;
-    while(tmp -> next){
-        if(tmp -> next -> d == d)
+    Node *tmp = head;
+    while (tmp->next)
+    {
+        if (tmp->next->d == d)
             return tmp;
-        tmp = tmp -> next;
+        tmp = tmp->next;
     }
 
     return NULL;
