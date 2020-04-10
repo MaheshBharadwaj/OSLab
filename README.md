@@ -9,6 +9,7 @@
  - [Exercise 07 - Banker's Algorithm for Deadlock Avoidance](./Assignment-07)
  - [Exercise 08 - Memory Allocation Methods for Fixed Partitions](./Assignment-08)
  - [Exercise 09 - Page Management Algorithms](./Assignment-09)
+ - [Exercise 10 - Page Replacement Algorithms](./Assignment-10)
 ## How to compile:
 **-lpthread required for assignment 6**
 ```bash
