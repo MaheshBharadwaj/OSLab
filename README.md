@@ -11,6 +11,8 @@
  - [Exercise 09 - Page Management Algorithms](./Assignment-09)
  - [Exercise 10 - Page Replacement Algorithms](./Assignment-10)
  - [Exercise 11 - Mutli Threaded Programming](./Assignment-11)
+ - [Exercise 12 - File Allocation Techniques](./Assignment-12)
+ - [Exercise 13 - File Organisation Techniques](./Assignment-13)
 ## How to compile:
 **-lpthread required for assignment 6, 11**
 ```bash
